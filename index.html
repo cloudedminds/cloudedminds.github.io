@@ -1,266 +1,136 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>个人作品集</title>
-<meta name="description" content="初中信息技术教师个人作品集：教学课件、Scratch 作品与编程项目">
-<style>
-  :root{
-    --bg:#ffffff;
-    --surface:#f6f7f9;
-    --text:#1b1f24;
-    --muted:#5b6470;
-    --line:#e6e8ec;
-    --accent:#2f5fe0;
-    --accent-soft:#eef2ff;
-    --wrap:1080px;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
-  body{
-    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
-    color:var(--text);background:var(--bg);line-height:1.75;
-    -webkit-font-smoothing:antialiased;
-  }
-  img{display:block;max-width:100%}
-  a{color:inherit;text-decoration:none}
-  .wrap{max-width:var(--wrap);margin:0 auto;padding:0 24px}
-
-  /* nav */
-  .nav{
-    position:sticky;top:0;z-index:20;
-    background:rgba(255,255,255,.9);
-    border-bottom:1px solid var(--line);
-    backdrop-filter:saturate(180%) blur(10px);
-  }
-  .nav-inner{height:60px;display:flex;align-items:center;justify-content:space-between;gap:16px}
-  .brand{font-size:15px;font-weight:600;letter-spacing:-.01em}
-  .nav-links{display:flex;gap:24px;font-size:14px;color:var(--muted);white-space:nowrap}
-  .nav-links a:hover{color:var(--accent)}
-
-  /* hero */
-  .hero{padding:76px 0 68px}
-  .hero-grid{display:grid;grid-template-columns:1fr 232px;gap:48px;align-items:center}
-  .badge{
-    display:inline-block;font-size:13px;color:var(--accent);
-    background:var(--accent-soft);border-radius:999px;padding:5px 14px;margin-bottom:20px;
-  }
-  .hero h1{font-size:40px;line-height:1.25;font-weight:600;letter-spacing:-.02em}
-  .hero .tagline{font-size:19px;color:var(--muted);margin-top:12px}
-  .hero .intro{font-size:15px;color:var(--muted);margin-top:20px;max-width:620px}
-  .btn-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
-  .btn{
-    display:inline-block;font-size:14px;padding:11px 22px;border-radius:10px;
-    border:1px solid transparent;transition:.18s ease;
-  }
-  .btn-primary{background:var(--accent);color:#fff}
-  .btn-primary:hover{background:#2450c4}
-  .btn-ghost{border-color:var(--line);color:var(--text);background:#fff}
-  .btn-ghost:hover{border-color:#c3cee8;color:var(--accent)}
-  .avatar{
-    width:232px;height:232px;border-radius:18px;overflow:hidden;
-    border:1px solid var(--line);background:var(--surface);
-    display:flex;align-items:center;justify-content:center;
-  }
-  .avatar img{width:100%;height:100%;object-fit:cover}
-
-  /* section */
-  .sec{padding:68px 0;border-top:1px solid var(--line)}
-  .eyebrow{font-size:12px;letter-spacing:.1em;color:var(--accent);margin-bottom:8px}
-  .sec h2{font-size:28px;font-weight:600;letter-spacing:-.01em}
-  .sec-desc{color:var(--muted);margin-top:10px;max-width:660px;font-size:15px}
-  .sec-body{margin-top:34px}
-
-  /* about */
-  .about-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:52px}
-  .about-text p{color:var(--muted);font-size:15px}
-  .about-text p + p{margin-top:14px}
-  .facts{margin-top:26px;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
-  .fact{background:#fff;padding:14px 16px}
-  .fact .k{font-size:12px;color:var(--muted)}
-  .fact .v{font-size:14px;margin-top:3px}
-  .skill + .skill{margin-top:16px}
-  .skill-row{display:flex;justify-content:space-between;font-size:14px;margin-bottom:7px}
-  .skill-row span:last-child{color:var(--muted);font-size:13px}
-  .bar{height:6px;border-radius:999px;background:#eef0f4;overflow:hidden}
-  .bar i{display:block;height:100%;border-radius:999px;background:var(--accent)}
-
-  /* cards */
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(306px,1fr));gap:20px}
-  .card{
-    border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden;
-    display:flex;flex-direction:column;transition:.2s ease;
-  }
-  .card:hover{border-color:#c9d5f2;box-shadow:0 8px 24px rgba(24,42,89,.07)}
-  .cover{
-    aspect-ratio:16/10;background:var(--surface);
-    display:flex;align-items:center;justify-content:center;padding:16px;
-    border-bottom:1px solid var(--line);
-  }
-  .cover img{width:100%;height:100%;object-fit:cover;border-radius:8px}
-  .card-body{padding:18px 18px 20px;display:flex;flex-direction:column;flex:1}
-  .card-body h3{font-size:16px;font-weight:600;line-height:1.5}
-  .card-body .tag{
-    align-self:flex-start;font-size:12px;color:var(--accent);
-    background:var(--accent-soft);border-radius:6px;padding:2px 8px;margin-top:8px;
-  }
-  .card-body p{font-size:14px;color:var(--muted);margin-top:12px}
-  .thumb-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
-  .thumb-row img{width:64px;height:44px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
-  .links{display:flex;flex-wrap:wrap;gap:16px;margin-top:auto;padding-top:16px;font-size:13px}
-  .links a{color:var(--accent);border-bottom:1px solid transparent}
-  .links a:hover{border-bottom-color:currentColor}
-
-  /* placeholder */
-  .ph{
-    font-size:12px;color:#8b93a0;text-align:center;line-height:1.7;
-    border:1px dashed #ccd3dd;border-radius:10px;padding:12px 16px;background:#fff;
-  }
-  .ph code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:var(--accent)}
-
-  /* embed */
-  .embed-box{border-bottom:1px solid var(--line);background:var(--surface);padding:14px}
-  .embed-box iframe{width:100%;aspect-ratio:4/3;border:0;border-radius:10px;background:#fff}
-
-  /* resume + contact */
-  .resume-box{
-    border:1px solid var(--line);border-radius:16px;padding:36px;background:var(--surface);
-    display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;
-  }
-  .resume-box h3{font-size:20px;font-weight:600}
-  .resume-box p{color:var(--muted);font-size:14px;margin-top:6px;max-width:620px}
-  .tip{
-    font-size:12px;color:#8b93a0;margin-top:12px;
-    border-left:3px solid var(--line);padding-left:10px;
-  }
-  .contact-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
-  .contact-item{border:1px solid var(--line);border-radius:12px;padding:18px}
-  .contact-item .k{font-size:12px;color:var(--muted)}
-  .contact-item .v{font-size:15px;margin-top:4px;word-break:break-all}
-  a.contact-item:hover{border-color:#c9d5f2}
-  a.contact-item:hover .v{color:var(--accent)}
-  footer{padding:32px 0;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
-
-  /* embed */
-  .embed-big iframe{
-    width:100%;height:68vh;min-height:420px;border:1px solid var(--line);
-    border-radius:12px;background:#fff;display:block;
-  }
-  .modal-foot{
-    display:flex;gap:18px;flex-wrap:wrap;margin-top:16px;
-    padding-top:14px;border-top:1px solid var(--line);font-size:13px;
-  }
-  .modal-foot a{color:var(--accent);border-bottom:1px solid transparent}
-  .modal-foot a:hover{border-bottom-color:currentColor}
-
-  /* modal */
-  .modal{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:24px}
-  .modal[hidden]{display:none}
-  .modal-mask{position:absolute;inset:0;background:rgba(16,22,34,.5)}
-  .modal-panel{
-    position:relative;background:#fff;border-radius:16px;border:0.5px solid var(--line);
-    width:100%;max-width:640px;max-height:82vh;overflow:auto;padding:28px 28px 24px;
-  }
-  .modal-close{
-    position:absolute;top:12px;right:14px;font-size:22px;line-height:1;
-    color:var(--muted);background:none;border:0;cursor:pointer;padding:4px 9px;border-radius:8px;
-  }
-  .modal-close:hover{background:var(--surface);color:var(--text)}
-  .modal-panel h3{font-size:20px;font-weight:600}
-  .modal-tag{
-    display:inline-block;font-size:12px;color:var(--accent);
-    background:var(--accent-soft);border-radius:6px;padding:2px 8px;margin-bottom:10px;
-  }
-  .modal-desc{font-size:14px;color:var(--muted);margin-top:8px}
-  .file-list{list-style:none;margin-top:18px;display:flex;flex-direction:column;gap:10px}
-  .file-item{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
-  .file-item .fname{font-size:14px;flex:1;min-width:0;word-break:break-all}
-  .file-item .fnote{font-size:12px;color:var(--muted);white-space:nowrap}
-  .file-item .fdown{font-size:13px;color:var(--accent);white-space:nowrap;border-bottom:1px solid transparent}
-  .file-item .fdown:hover{border-bottom-color:currentColor}
-  .file-item .fnod{font-size:12px;color:#8b93a0;white-space:nowrap}
-  .file-item.empty{border-style:dashed;color:#8b93a0;font-size:13px;justify-content:center}
-  .file-group + .file-group{margin-top:22px}
-  .file-group h4{font-size:14px;font-weight:600;margin-bottom:10px;display:flex;gap:8px;align-items:baseline}
-  .file-group h4 span{font-size:12px;font-weight:400;color:var(--muted)}
-  .card.clickable{cursor:pointer}
-  .card.featured .cover{background:var(--accent-soft)}
-  .card .hint{
-    margin-top:auto;padding-top:14px;border-top:1px solid var(--line);
-    font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:8px;
-  }
-  .card .hint .go{color:var(--accent)}
-  .card .hint .cnt{color:var(--muted);font-size:12px;white-space:nowrap}
-  .card .hint.muted .go{color:#8b93a0}
-
-  @media (max-width:860px){
-    .hero-grid{grid-template-columns:1fr;gap:28px}
-    .avatar{width:150px;height:150px}
-    .about-grid{grid-template-columns:1fr;gap:32px}
-  }
-  @media (max-width:680px){
-    .nav-links{overflow-x:auto;gap:16px}
-    .nav-inner{height:56px}
-    .hero{padding:52px 0 48px}
-    .hero h1{font-size:31px}
-    .hero .tagline{font-size:17px}
-    .sec{padding:52px 0}
-    .sec h2{font-size:24px}
-    .facts{grid-template-columns:1fr}
-    .resume-box{padding:26px}
-  }
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Skill Studio - Create, Organize & Export AI Agent Skills Privately</title>
+<meta name="description" content="Agent Skill Studio is a local-first browser tool to create, organize, validate, and export AI agent skills (SKILL.md). 100% private, no data leaves your computer. Works offline.">
+<meta name="keywords" content="ai, ai-agents, claude-skills, local-first, markdown, privacy, prompt-engineering, react, skills, tailwindcss, typescript, vite">
+<meta name="author" content="CloudedMinds">
+<meta property="og:title" content="Agent Skill Studio - Create, Organize & Export AI Agent Skills Privately">
+<meta property="og:description" content="Local-first studio to create, organize, validate and export AI agent skills (SKILL.md) — 100% private, runs in your browser.">
+<meta property="og:url" content="https://github.com/cloudedminds/agent-skill-studio">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Agent Skill Studio - Create, Organize & Export AI Agent Skills Privately">
+<meta name="twitter:description" content="Local-first studio to create, organize, validate and export AI agent skills (SKILL.md) — 100% private, runs in your browser.">
 </head>
-<body>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f6f8; color: #1a202c; line-height: 1.7;">
 
-<header class="nav">
-  <div class="wrap nav-inner">
-    <div class="brand" id="brand"></div>
-    <nav class="nav-links" id="navlinks"></nav>
+<div style="max-width: 960px; margin: 0 auto; padding: 40px 24px;">
+
+<!-- Hero Section -->
+<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 48px 40px; margin-bottom: 48px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); text-align: center;">
+  <h1 style="color: #ffffff; font-size: 2.5em; margin: 0 0 16px 0; font-weight: 700; letter-spacing: -0.5px;">🛠️ Agent Skill Studio - Your Private AI Skills Workspace</h1>
+  <p style="color: #e8eaf6; font-size: 1.2em; margin: 0 0 32px 0; font-weight: 300;">Create, organize, and export AI agent skills completely offline</p>
+  <a href="https://github.com/cloudedminds/agent-skill-studio" style="display: inline-block; background: #ffffff; color: #764ba2; padding: 16px 42px; border-radius: 12px; font-size: 1.2em; font-weight: 600; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: transform 0.2s, box-shadow 0.2s;">⬇️ Download Now</a>
+</div>
+
+<!-- Overview -->
+<h2 style="font-size: 1.8em; color: #2d3748; border-bottom: 3px solid #667eea; padding-bottom: 10px; margin-top: 48px;">📋 What Is Agent Skill Studio?</h2>
+<p style="font-size: 1.15em; color: #4a5568; margin: 20px 0;">Agent Skill Studio is a free, easy-to-use program that helps you build <strong>skills</strong> for AI assistants like Claude, ChatGPT, or other AI agents. A skill is a simple text file (called <code style="background: #edf2f7; padding: 2px 6px; border-radius: 4px;">SKILL.md</code>) that teaches an AI how to do something specific.</p>
+<p style="font-size: 1.15em; color: #4a5568; margin: 20px 0;">Think of it like creating recipes for your AI - you write down the exact steps, examples, and tips, so the AI knows exactly what to do every time you ask. Agent Skill Studio gives you a beautiful, simple interface to write these skills, check them for mistakes, save them neatly, and export them to use with your AI tools.</p>
+
+<!-- Why Choose Us -->
+<h2 style="font-size: 1.8em; color: #2d3748; border-bottom: 3px solid #667eea; padding-bottom: 10px; margin-top: 48px;">🏆 Why People Love Agent Skill Studio</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 24px; margin: 24px 0;">
+  <div style="flex: 1; min-width: 250px; background: #ffffff; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+    <div style="font-size: 2em; margin-bottom: 12px;">🔒</div>
+    <h3 style="font-size: 1.3em; color: #2d3748; margin: 0 0 8px 0;">100% Private</h3>
+    <p style="color: #4a5568; font-size: 1em; margin: 0;">Everything runs in your browser. Your skills never leave your computer. No cloud, no servers, no tracking.</p>
   </div>
-</header>
-
-<main>
-  <section class="hero"><div class="wrap hero-grid" id="hero"></div></section>
-  <section class="sec" id="about"><div class="wrap">
-    <div class="eyebrow"></div><h2></h2><div class="sec-desc"></div>
-    <div class="sec-body about-grid" id="aboutBody"></div>
-  </div></section>
-  <section class="sec" id="teaching"><div class="wrap">
-    <div class="eyebrow"></div><h2></h2><div class="sec-desc"></div>
-    <div class="sec-body grid" id="teachingBody"></div>
-  </div></section>
-  <section class="sec" id="coding"><div class="wrap">
-    <div class="eyebrow"></div><h2></h2><div class="sec-desc"></div>
-    <div class="sec-body grid" id="codingBody"></div>
-  </div></section>
-  <section class="sec" id="opensource"><div class="wrap">
-    <div class="eyebrow"></div><h2></h2><div class="sec-desc"></div>
-    <div class="sec-body grid" id="opensourceBody"></div>
-    <div class="sec-body tip" id="githubTip"></div>
-  </div></section>
-  <section class="sec" id="resume"><div class="wrap"><div class="resume-box" id="resumeBox"></div></div></section>
-  <section class="sec" id="contact"><div class="wrap">
-    <div class="eyebrow"></div><h2></h2><div class="sec-desc"></div>
-    <div class="sec-body contact-grid" id="contactBody"></div>
-  </div></section>
-</main>
-
-<footer><div class="wrap" id="footer"></div></footer>
-
-<div class="modal" id="modal" hidden>
-  <div class="modal-mask" data-close></div>
-  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <button class="modal-close" data-close aria-label="关闭">&times;</button>
-    <div class="modal-tag" id="modalTag"></div>
-    <h3 id="modalTitle"></h3>
-    <p class="modal-desc" id="modalDesc"></p>
-    <div id="modalFiles"></div>
+  <div style="flex: 1; min-width: 250px; background: #ffffff; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+    <div style="font-size: 2em; margin-bottom: 12px;">🎯</div>
+    <h3 style="font-size: 1.3em; color: #2d3748; margin: 0 0 8px 0;">No Installation Needed</h3>
+    <p style="color: #4a5568; font-size: 1em; margin: 0;">Works in any modern web browser. No technical knowledge needed to get started.</p>
+  </div>
+  <div style="flex: 1; min-width: 250px; background: #ffffff; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+    <div style="font-size: 2em; margin-bottom: 12px;">🧩</div>
+    <h3 style="font-size: 1.3em; color: #2d3748; margin: 0 0 8px 0;">Organized Workflow</h3>
+    <p style="color: #4a5568; font-size: 1em; margin: 0;">Create folders, tag skills, and find anything with powerful search.</p>
   </div>
 </div>
 
-<script src="data.js"></script>
-<script src="app.js"></script>
+<div style="display: flex; flex-wrap: wrap; gap: 24px; margin: 24px 0;">
+  <div style="flex: 1; min-width: 250px; background: #ffffff; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+    <div style="font-size: 2em; margin-bottom: 12px;">✍️</div>
+    <h3 style="font-size: 1.3em; color: #2d3748; margin: 0 0 8px 0;">Simple Editor</h3>
+    <p style="color: #4a5568; font-size: 1em; margin: 0;">Write with a clean, easy-to-use editor that feels like writing a document.</p>
+  </div>
+  <div style="flex: 1; min-width: 250px; background: #ffffff; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+    <div style="font-size: 2em; margin-bottom: 12px;">✔️</div>
+    <h3 style="font-size: 1.3em; color: #2d3748; margin: 0 0 8px 0;">Built-in Validation</h3>
+    <p style="color: #4a5568; font-size: 1em; margin: 0;">Check your skills for errors before you use them. Save time and avoid headaches.</p>
+  </div>
+  <div style="flex: 1; min-width: 250px; background: #ffffff; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+    <div style="font-size: 2em; margin-bottom: 12px;">📦</div>
+    <h3 style="font-size: 1.3em; color: #2d3748; margin: 0 0 8px 0;">Simple Export</h3>
+    <p style="color: #4a5568; font-size: 1em; margin: 0;">Download your skills as ready-to-use files that work with most AI agents.</p>
+  </div>
+</div>
+
+<!-- Download Section -->
+<h2 style="font-size: 1.8em; color: #2d3748; border-bottom: 3px solid #667eea; padding-bottom: 10px; margin-top: 48px;">🚀 Get Started on Windows</h2>
+<p style="font-size: 1.15em; color: #4a5568; margin: 20px 0;">Follow these simple steps to download and run Agent Skill Studio on your Windows computer:</p>
+
+<div style="background: #ffffff; border-radius: 12px; padding: 32px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+  <h3 style="font-size: 1.4em; color: #2d3748; margin: 0 0 16px 0;">Step 1: Download the Software</h3>
+  <p style="color: #4a5568; font-size: 1.05em; margin: 0 0 20px 0;"><strong>Visit this link to download the application:</strong> <a href="https://github.com/cloudedminds/agent-skill-studio" style="color: #667eea; font-weight: 600;">https://github.com/cloudedminds/agent-skill-studio</a></p>
+  <p style="color: #4a5568; font-size: 1.05em; margin: 0;">This page will have a button or list of files. Look for something that says <strong>"Download"</strong> or <strong>"Releases"</strong>. This will download the program to your computer. Make sure you remember where you saved it - usually it goes to your "Downloads" folder.</p>
+</div>
+
+<div style="background: #ffffff; border-radius: 12px; padding: 32px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+  <h3 style="font-size: 1.4em; color: #2d3748; margin: 0 0 16px 0;">Step 2: Open the Program</h3>
+  <p style="color: #4a5568; font-size: 1.05em; margin: 0;">Once the download finishes, open your Downloads folder (or wherever you saved the file) and double-click on the downloaded file. Windows may ask for a confirmation ("Are you sure you want to run this file?") - simply click <strong>"Yes"</strong> or <strong>"Run"</strong> to proceed.</p>
+</div>
+
+<div style="background: #ffffff; border-radius: 12px; padding: 32px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+  <h3 style="font-size: 1.4em; color: #2d3748; margin: 0 0 16px 0;">Step 3: Start Creating</h3>
+  <p style="color: #4a5568; font-size: 1.05em; margin: 0;">After a few seconds, the program will open in your default web browser. That's it! You're ready to start making your first AI skill. Click <strong>"New Skill"</strong> to begin, or explore the example skills already loaded to see how things work.</p>
+</div>
+
+<div style="background: #ffffff; border-radius: 12px; padding: 32px; margin: 24px 0; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+  <p style="font-size: 1.2em; color: #4a5568; margin: 0 0 20px 0;">Ready to get started?</p>
+  <a href="https://github.com/cloudedminds/agent-skill-studio" style="display: inline-block; background: #667eea; color: #ffffff; padding: 16px 42px; border-radius: 12px; font-size: 1.2em; font-weight: 600; text-decoration: none; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); transition: transform 0.2s, box-shadow 0.2s;">⬇️ Download Agent Skill Studio</a>
+</div>
+
+<!-- Quick Start Guide -->
+<h2 style="font-size: 1.8em; color: #2d3748; border-bottom: 3px solid #667eea; padding-bottom: 10px; margin-top: 48px;">⚡ Quick Start Guide</h2>
+<div style="background: #ffffff; border-radius: 12px; padding: 32px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+  <p style="color: #4a5568; font-size: 1.05em; margin: 0 0 16px 0;"><strong style="color: #2d3748;">2-minute tutorial:</strong></p>
+  <div style="display: flex; gap: 16px; flex-wrap: wrap; margin: 16px 0;">
+    <div style="flex: 1; min-width: 200px; background: #f7fafc; padding: 16px; border-radius: 8px;">
+      <strong style="color: #667eea;">1️⃣ Click "New Skill"</strong>
+      <p style="margin: 8px 0 0 0; color: #4a5568;">Give your skill a name.</p>
+    </div>
+    <div style="flex: 1; min-width: 200px; background: #f7fafc; padding: 16px; border-radius: 8px;">
+      <strong style="color: #667eea;">2️⃣ Write instructions</strong>
+      <p style="margin: 8px 0 0 0; color: #4a5568;">Explain to the AI exactly what to do.</p>
+    </div>
+    <div style="flex: 1; min-width: 200px; background: #f7fafc; padding: 16px; border-radius: 8px;">
+      <strong style="color: #667eea;">3️⃣ Click "Save"</strong>
+      <p style="margin: 8px 0 0 0; color: #4a5568;">Your skill is now organized and ready.</p>
+    </div>
+  </div>
+  <p style="color: #4a5568; font-size: 1.05em; margin: 16px 0 0 0;">That's all. You can now export your skill anytime and use it with your favorite AI assistant.</p>
+</div>
+
+<!-- Common Questions -->
+<h2 style="font-size: 1.8em; color: #2d3748; border-bottom: 3px solid #667eea; padding-bottom: 10px; margin-top: 48px;">❓ Frequently Asked Questions</h2>
+<div style="background: #ffffff; border-radius: 12px; padding: 24px 32px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+  <h4 style="color: #2d3748; font-size: 1.15em; margin: 20px 0 8px 0;">Is my data safe?</h4>
+  <p style="color: #4a5568; font-size: 1em; margin: 0;">Yes! Your work is stored only on your own computer. Nothing is ever sent over the internet.</p>
+  
+  <h4 style="color: #2d3748; font-size: 1.15em; margin: 20px 0 8px 0;">Do I need to be a programmer?</h4>
+  <p style="color: #4a5568; font-size: 1em; margin: 0;">Not at all. If you can write a simple list of instructions, you can create skills with this tool.</p>
+  
+  <h4 style="color: #2d3748; font-size: 1.15em; margin: 20px 0 8px 0;">Can I use it on other computers?</h4>
+  <p style="color: #4a5568; font-size: 1em; margin: 0;">While designed for Windows, because it runs in a browser, it works on any computer with a modern web browser (Windows, Mac, or Linux).</p>
+</div>
+
+<!-- Keywords -->
+<p style="text-align: center; color: #a0aec0; font-size: 0.9em; margin: 48px 0 0 0; padding-top: 24px; border-top: 1px solid #e2e8f0;">© 2024 Agent Skill Studio. Built with ❤️ by CloudedMinds.</p>
+
+</div>
 </body>
 </html>
