@@ -5,8 +5,7 @@
 (function () {
   'use strict';
 
-  var $  = function (s, r) { return (r || document).querySelector(s); };
-  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var $ = function (s, r) { return (r || document).querySelector(s); };
 
   function esc(v) {
     return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
@@ -15,8 +14,11 @@
   }
   function has(v) { return typeof v === 'string' && v.trim() !== ''; }
   function hrefOk(v) { return has(v) && v !== '#'; }
+  function list(v) { return Array.isArray(v) ? v : []; }
 
-  /* ---------- 通用：区块标题 ---------- */
+  var teachingItems = [];
+
+  /* ---------- 区块标题 ---------- */
   function paintHead(id, cfg) {
     var sec = document.getElementById(id);
     if (!sec || !cfg) { return; }
@@ -25,78 +27,158 @@
     $('.sec-desc', sec).textContent = cfg.desc || '';
   }
 
-  /* ---------- 通用：封面 / 占位 ---------- */
-  function coverHTML(item, index, dir) {
-    var phText = '<div class="ph">封面图待补充<br>把图片放进 assets 文件夹，<br>再在 data.js 里填 <code>' +
-      esc(dir || 'assets/xxx.png') + '</code></div>';
-    if (has(item.cover)) {
-      return '<img src="' + esc(item.cover) + '" alt="' + esc(item.title) + '">';
+  /* ---------- 封面 / 占位 ---------- */
+  function coverInner(item, i, dir, runnable) {
+    if (has(item.cover)) { return '<img src="' + esc(item.cover) + '" alt="' + esc(item.title) + '">'; }
+    if (runnable) { return '<div class="ph">点击卡片即可运行</div>'; }
+    if (i === 0) {
+      return '<div class="ph">封面图待补充<br>把图片放进 assets 文件夹，<br>再在 data.js 里填 <code>' +
+        esc(dir) + '</code></div>';
     }
-    if (has(item.embed)) {
-      phText = '<div class="ph">可嵌入在线试玩<br>或补一张封面截图</div>';
-    }
-    if (index > 0) { phText = '<div class="ph">封面图待补充</div>'; }
-    return phText;
+    return '<div class="ph">封面图待补充</div>';
   }
 
   function galleryHTML(item) {
-    if (!Array.isArray(item.gallery) || item.gallery.length === 0) { return ''; }
-    return '<div class="thumb-row">' + item.gallery
-      .filter(has)
-      .map(function (g) { return '<img src="' + esc(g) + '" alt="作品截图">'; })
-      .join('') + '</div>';
+    var g = list(item.gallery).filter(has);
+    if (!g.length) { return ''; }
+    return '<div class="thumb-row">' + g.map(function (x) {
+      return '<img src="' + esc(x) + '" alt="作品截图">';
+    }).join('') + '</div>';
   }
 
   function linksHTML(item, kind) {
-    var list = (Array.isArray(item.links) ? item.links : []).filter(function (l) { return hrefOk(l && l.href); });
-    if (list.length) {
-      return '<div class="links">' + list.map(function (l) {
+    var ls = list(item.links).filter(function (l) { return hrefOk(l && l.href); });
+    if (ls.length) {
+      return '<div class="links">' + ls.map(function (l) {
         return '<a href="' + esc(l.href) + '" target="_blank" rel="noopener">' + esc(l.label || '查看') + '</a>';
       }).join('') + '</div>';
     }
     if (kind === 'muted') {
-      return '<div class="links"><span class="ph" style="border:0;padding:0;text-align:left">链接待补充</span></div>';
+      return '<div class="links"><span style="color:#8b93a0;font-size:12px">链接待补充</span></div>';
     }
     return '';
   }
 
-  function cardHTML(item, i, dir) {
-    var top;
-    if (has(item.embed)) {
-      top = '<div class="embed-box"><iframe src="' + esc(item.embed) +
-            '" allowfullscreen loading="lazy" title="' + esc(item.title) + '"></iframe></div>';
-    } else {
-      top = '<div class="cover">' + coverHTML(item, i, dir) + '</div>';
+  /* ---------- 文件清单 ---------- */
+  function fileListHTML(files) {
+    var fs = list(files);
+    if (!fs.length) {
+      return '<ul class="file-list"><li class="file-item empty">这个课件包还没有上传文件</li></ul>';
     }
-    return '<article class="card">' + top +
+    return '<ul class="file-list">' + fs.map(function (f) {
+      var ok = hrefOk(f.href);
+      return '<li class="file-item">' +
+        '<span class="fname">' + esc(f.name || '未命名文件') + '</span>' +
+        (has(f.note) ? '<span class="fnote">' + esc(f.note) + '</span>' : '') +
+        (ok ? '<a class="fdown" href="' + esc(f.href) + '" download>下载</a>'
+            : '<span class="fnod">待上传</span>') +
+      '</li>';
+    }).join('') + '</ul>';
+  }
+
+  function countFiles(arr) {
+    return arr.reduce(function (n, it) { return n + list(it.files).length; }, 0);
+  }
+
+  /* ---------- 卡片 ---------- */
+  function cardHTML(item, i, cfg) {
+    var files = list(item.files);
+    var runnable = cfg.mode !== 'files' && has(item.embed);
+    var top = '<div class="cover">' + coverInner(item, i, cfg.dir, runnable) + '</div>';
+    var foot;
+    if (cfg.mode === 'files') {
+      foot = files.length
+        ? '<div class="hint"><span class="go">点击查看全部课件</span><span class="cnt">共 ' + files.length + ' 个文件</span></div>'
+        : '<div class="hint muted"><span class="go">文件待补充</span></div>';
+    } else if (runnable) {
+      foot = '<div class="hint"><span class="go">点击运行</span><span class="cnt">' +
+             esc(item.embedLabel || 'HTML 工具') + '</span></div>';
+    } else {
+      foot = linksHTML(item, 'muted');
+    }
+    var cls = 'card' + ((cfg.mode === 'files' && files.length) || runnable ? ' clickable' : '');
+    return '<article class="' + cls + '" data-idx="' + i + '">' + top +
       '<div class="card-body">' +
         '<h3>' + esc(item.title) + '</h3>' +
         (has(item.tag) ? '<span class="tag">' + esc(item.tag) + '</span>' : '') +
         (has(item.desc) ? '<p>' + esc(item.desc) + '</p>' : '') +
         galleryHTML(item) +
-        linksHTML(item, 'muted') +
+        foot +
       '</div></article>';
   }
 
-  function gridHTML(list, dir) {
-    return (Array.isArray(list) ? list : []).map(function (it, i) { return cardHTML(it, i, dir); }).join('');
+  /* ---------- 弹窗 ---------- */
+  function openModal(tag, title, desc, innerHTML) {
+    var m = document.getElementById('modal');
+    if (!m) { return; }
+    $('#modalTag').textContent = tag || '';
+    $('#modalTitle').textContent = title || '';
+    $('#modalDesc').textContent = desc || '';
+    $('#modalFiles').innerHTML = innerHTML || '';
+    m.hidden = false;
+    if (document.body && document.body.style) { document.body.style.overflow = 'hidden'; }
+  }
+
+  function closeModal() {
+    var m = document.getElementById('modal');
+    if (!m) { return; }
+    m.hidden = true;
+    if (document.body && document.body.style) { document.body.style.overflow = ''; }
+  }
+
+  function initModal() {
+    var m = document.getElementById('modal');
+    if (!m) { return; }
+    m.addEventListener('click', function (e) {
+      if (e.target && e.target.hasAttribute && e.target.hasAttribute('data-close')) { closeModal(); }
+    });
+    if (document.addEventListener) {
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') { closeModal(); }
+      });
+    }
+  }
+
+  function openEmbedModal(item) {
+    openModal(item.tag || '工具', item.title, item.desc || '',
+      '<div class="embed-big"><iframe src="' + esc(item.embed) + '" title="' + esc(item.title) + '"></iframe></div>' +
+      '<div class="modal-foot">' +
+        '<a href="' + esc(item.embed) + '" target="_blank" rel="noopener">在新窗口打开</a>' +
+        (has(item.source) ? '<a href="' + esc(item.source) + '" target="_blank" rel="noopener">查看源码</a>' : '') +
+      '</div>');
+  }
+
+  function openItemModal(item) {
+    var n = list(item.files).length;
+    openModal(item.tag || '课件', item.title,
+      (has(item.desc) ? item.desc + ' ' : '') + '共 ' + n + ' 个文件，点右侧"下载"获取。',
+      fileListHTML(item.files));
+  }
+
+  function openAllModal() {
+    var groups = teachingItems.filter(function (it) { return list(it.files).length; });
+    if (!groups.length) { return; }
+    openModal('全部课件', '全部课件清单',
+      '共 ' + groups.length + ' 个课件包、' + countFiles(groups) + ' 个文件，点右侧"下载"获取。',
+      groups.map(function (it) {
+        return '<div class="file-group"><h4>' + esc(it.title) +
+               '<span>' + esc(it.tag || '') + '</span></h4>' + fileListHTML(it.files) + '</div>';
+      }).join(''));
   }
 
   /* ---------- 导航 ---------- */
   function renderNav() {
     $('#brand').textContent = SITE.hero.name + ' · 作品集';
     var sections = [
-      { id: 'about',       label: '关于我',   on: !!(SITE.about && (SITE.about.title || []).length !== 0) },
-      { id: 'teaching',    label: '教学课件', on: !!(SITE.teaching && SITE.teaching.items && SITE.teaching.items.length) },
-      { id: 'coding',      label: '编程作品', on: !!(SITE.coding && SITE.coding.items && SITE.coding.items.length) },
-      { id: 'opensource',  label: 'GitHub',   on: !!(SITE.opensource && SITE.opensource.items && SITE.opensource.items.length) },
-      { id: 'resume',      label: '简历',     on: has(SITE.resume && SITE.resume.file) },
-      { id: 'contact',     label: '联系',     on: !!(SITE.contact && SITE.contact.items && SITE.contact.items.length) }
+      { id: 'about',      label: '关于我',   on: !!(SITE.about && SITE.about.title) },
+      { id: 'teaching',   label: '教学课件', on: !!(SITE.teaching && list(SITE.teaching.items).length) },
+      { id: 'coding',     label: '编程作品', on: !!(SITE.coding && list(SITE.coding.items).length) },
+      { id: 'opensource', label: 'GitHub',   on: !!(SITE.opensource && list(SITE.opensource.items).length) },
+      { id: 'resume',     label: '简历',     on: has(SITE.resume && SITE.resume.file) },
+      { id: 'contact',    label: '联系',     on: !!(SITE.contact && list(SITE.contact.items).length) }
     ];
-    $('#navlinks').innerHTML = sections
-      .filter(function (s) { return s.on; })
-      .map(function (s) { return '<a href="#' + s.id + '">' + s.label + '</a>'; })
-      .join('');
+    $('#navlinks').innerHTML = sections.filter(function (s) { return s.on; })
+      .map(function (s) { return '<a href="#' + s.id + '">' + s.label + '</a>'; }).join('');
   }
 
   /* ---------- 首页 ---------- */
@@ -106,7 +188,6 @@
     var avatar = has(h.avatar)
       ? '<img src="' + esc(h.avatar) + '" alt="' + esc(h.name) + '">'
       : '<div class="ph" style="width:80%">形象照<br>建议 1:1 生活照<br><code>assets/avatar.jpg</code></div>';
-
     $('#hero').innerHTML =
       '<div>' +
         (has(h.target) ? '<span class="badge">' + esc(h.target) + '</span>' : '') +
@@ -117,7 +198,6 @@
           ((h.primaryBtn && hrefOk(h.primaryBtn.href)) ? '<a class="btn btn-primary" href="' + esc(h.primaryBtn.href) + '">' + esc(h.primaryBtn.label) + '</a>' : '') +
           ((h.secondaryBtn && hrefOk(h.secondaryBtn.href)) ? '<a class="btn btn-ghost" href="' + esc(h.secondaryBtn.href) + '">' + esc(h.secondaryBtn.label) + '</a>' : '') +
         '</div>' +
-      '</div>' +
       '<div class="avatar">' + avatar + '</div>';
   }
 
@@ -125,42 +205,84 @@
   function renderAbout() {
     var a = SITE.about;
     if (!a) { return; }
-    var facts = (a.facts || []).filter(function (f) { return has(f.value); });
-    var left =
-      '<div class="about-text">' +
-        (a.paragraphs || []).filter(has).map(function (p) { return '<p>' + esc(p) + '</p>'; }).join('') +
-        (facts.length ? '<div class="facts">' + facts.map(function (f) {
-          return '<div class="fact"><div class="k">' + esc(f.label) + '</div><div class="v">' + esc(f.value) + '</div></div>';
-        }).join('') + '</div>' : '') +
-      '</div>';
-    var skills = (a.skills || []).filter(function (s) { return has(s.name); });
-    var right = skills.length
-      ? '<div>' + skills.map(function (s) {
-          var v = Math.max(0, Math.min(100, Number(s.score) || 0));
-          return '<div class="skill"><div class="skill-row"><span>' + esc(s.name) + '</span><span>' + v + '</span></div>' +
-                 '<div class="bar"><i style="width:' + v + '%"></i></div></div>';
-        }).join('') + '</div>'
-      : '';
+    var facts = list(a.facts).filter(function (f) { return has(f.value); });
+    var left = '<div class="about-text">' +
+      list(a.paragraphs).filter(has).map(function (p) { return '<p>' + esc(p) + '</p>'; }).join('') +
+      (facts.length ? '<div class="facts">' + facts.map(function (f) {
+        return '<div class="fact"><div class="k">' + esc(f.label) + '</div><div class="v">' + esc(f.value) + '</div></div>';
+      }).join('') + '</div>' : '') + '</div>';
+    var skills = list(a.skills).filter(function (s) { return has(s.name); });
+    var right = skills.length ? '<div>' + skills.map(function (s) {
+      var v = Math.max(0, Math.min(100, Number(s.score) || 0));
+      return '<div class="skill"><div class="skill-row"><span>' + esc(s.name) + '</span><span>' + v + '</span></div>' +
+             '<div class="bar"><i style="width:' + v + '%"></i></div></div>';
+    }).join('') + '</div>' : '';
     $('#aboutBody').innerHTML = left + right;
   }
 
-  /* ---------- 各卡片区 ---------- */
+  /* ---------- 教学课件区（点击看全部文件）---------- */
+  function renderTeaching() {
+    var cfg = SITE.teaching;
+    if (!cfg) { return; }
+    var items = list(cfg.items);
+    teachingItems = items;
+    var packed = items.filter(function (it) { return list(it.files).length; });
+    var html = '';
+    if (packed.length > 1 && cfg.showAllCard !== false) {
+      html += '<article class="card clickable featured" data-all="1">' +
+        '<div class="cover"><div class="ph">一键查看全部课件</div></div>' +
+        '<div class="card-body">' +
+          '<h3>全部课件</h3>' +
+          '<span class="tag">' + packed.length + ' 个课件包</span>' +
+          '<p>点击展开完整清单，包含每个课件的 PPT、任务单与配套材料。</p>' +
+          '<div class="hint"><span class="go">点击查看</span><span class="cnt">共 ' + countFiles(packed) + ' 个文件</span></div>' +
+        '</div></article>';
+    }
+    html += items.map(function (it, i) {
+      return cardHTML(it, i, { mode: 'files', dir: 'assets/kejian.png' });
+    }).join('');
+    $('#teachingBody').innerHTML = html;
+
+    var grid = $('#teachingBody');
+    if (grid.addEventListener) {
+      grid.addEventListener('click', function (e) {
+        var card = e.target && e.target.closest ? e.target.closest('.card') : null;
+        if (!card) { return; }
+        if (card.getAttribute('data-all') === '1') { openAllModal(); return; }
+        var it = teachingItems[Number(card.getAttribute('data-idx'))];
+        if (it && list(it.files).length) { openItemModal(it); }
+      });
+    }
+  }
+
+  /* ---------- 其他卡片区 ---------- */
   var cardSections = [
-    { key: 'teaching',   el: '#teachingBody',   dir: 'assets/kejian.png' },
-    { key: 'coding',     el: '#codingBody',     dir: 'assets/works.png' },
-    { key: 'opensource', el: '#opensourceBody', dir: 'assets/repo.png' }
+    { key: 'coding',     el: '#codingBody',     dir: 'assets/works.png', mode: 'embed' },
+    { key: 'opensource', el: '#opensourceBody', dir: 'assets/repo.png',  mode: 'link' }
   ];
 
   function renderCardSections() {
-    cardSections.forEach(function (s) {
-      var cfg = SITE[s.key];
-      if (!cfg) { return; }
-      paintHead(s.id || s.key, cfg);
-      $(s.el).innerHTML = gridHTML(cfg.items, s.dir);
+    cardSections.forEach(function (cfg) {
+      var data = SITE[cfg.key];
+      if (!data) { return; }
+      paintHead(cfg.key, data);
+      $(cfg.el).innerHTML = list(data.items).map(function (it, i) {
+        return cardHTML(it, i, cfg);
+      }).join('');
+
+      var grid = $(cfg.el);
+      if (grid && grid.addEventListener) {
+        grid.addEventListener('click', function (e) {
+          var card = e.target && e.target.closest ? e.target.closest('.card') : null;
+          if (!card) { return; }
+          var it = list(data.items)[Number(card.getAttribute('data-idx'))];
+          if (!it) { return; }
+          if (cfg.mode === 'embed' && has(it.embed)) { openEmbedModal(it); return; }
+          var first = list(it.links).filter(function (l) { return hrefOk(l && l.href); })[0];
+          if (first && typeof window !== 'undefined') { window.open(first.href, '_blank', 'noopener'); }
+        });
+      }
     });
-    paintHead('teaching', SITE.teaching);
-    paintHead('coding', SITE.coding);
-    paintHead('opensource', SITE.opensource);
     paintHead('about', SITE.about);
     paintHead('contact', SITE.contact);
 
@@ -189,7 +311,7 @@
   function renderContact() {
     var c = SITE.contact;
     if (!c) { return; }
-    $('#contactBody').innerHTML = (c.items || []).filter(function (i) { return has(i.value); }).map(function (i) {
+    $('#contactBody').innerHTML = list(c.items).filter(function (i) { return has(i.value); }).map(function (i) {
       var inner = '<div class="k">' + esc(i.label) + '</div><div class="v">' + esc(i.value) + '</div>';
       return hrefOk(i.href)
         ? '<a class="contact-item" href="' + esc(i.href) + '"' + (i.href.indexOf('http') === 0 ? ' target="_blank" rel="noopener"' : '') + '>' + inner + '</a>'
@@ -203,9 +325,11 @@
     renderNav();
     renderHero();
     renderAbout();
+    renderTeaching();
     renderCardSections();
     renderResume();
     renderContact();
+    initModal();
   } catch (e) {
     document.body.insertAdjacentHTML('afterbegin',
       '<div style="padding:16px;margin:16px;border:1px solid #e6e8ec;border-radius:12px;background:#fff5f5;color:#a32d2d;font-size:14px">' +

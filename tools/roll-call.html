@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>随机点名小工具</title>
+<style>
+  :root{
+    --bg:#ffffff;--surface:#f6f7f9;--text:#1b1f24;--muted:#5b6470;
+    --line:#e6e8ec;--accent:#2f5fe0;--accent-soft:#eef2ff;--ok:#0f6e56;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+    color:var(--text);background:var(--bg);line-height:1.7;
+    padding:26px 22px 36px;-webkit-font-smoothing:antialiased;
+  }
+  h1{font-size:22px;font-weight:600;letter-spacing:-.01em}
+  .sub{font-size:13px;color:var(--muted);margin-top:4px}
+  .stage{
+    margin-top:20px;border:1px solid var(--line);border-radius:16px;background:var(--surface);
+    min-height:172px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:26px 20px;text-align:center;
+  }
+  .stage .who{font-size:40px;font-weight:500;letter-spacing:-.02em;line-height:1.35;word-break:break-all}
+  .stage .tip{font-size:13px;color:var(--muted);margin-top:8px}
+  .stage.roll .who{color:var(--accent)}
+  .picked{
+    margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;
+  }
+  .picked span{font-size:13px;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:3px 11px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;align-items:center}
+  button{
+    font:inherit;font-size:14px;padding:9px 18px;border-radius:10px;cursor:pointer;
+    border:1px solid var(--line);background:#fff;color:var(--text);transition:.16s;
+  }
+  button:hover{border-color:#c3cee8;color:var(--accent)}
+  button.primary{background:var(--accent);border-color:var(--accent);color:#fff;min-width:112px}
+  button.primary:hover{background:#2450c4;color:#fff}
+  .names{margin-top:16px}
+  textarea{
+    width:100%;min-height:132px;resize:vertical;padding:12px 14px;font-size:13px;
+    font-family:ui-monospace,Menlo,Consolas,monospace;line-height:1.8;
+    border:1px solid var(--line);border-radius:10px;outline:none;color:var(--text);
+  }
+  textarea:focus{border-color:var(--accent)}
+  .hintline{font-size:12px;color:var(--muted);margin-top:8px}
+  .kbd{
+    font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;
+    border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;color:var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<h1>随机点名小工具</h1>
+<p class="sub">粘贴名单后按 <span class="kbd">空格</span> 开始 / 停止</p>
+
+<div class="stage" id="stage">
+  <div class="who" id="who">准备就绪</div>
+  <div class="tip" id="tip">在下方粘贴学生名单</div>
+</div>
+
+<div id="usedBox"></div>
+
+<div class="row">
+  <button class="primary" id="toggle">开始</button>
+  <button id="reset">重置</button>
+  <label style="font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px">
+    <input type="checkbox" id="norepeat" checked style="width:15px;height:15px;accent-color:var(--accent)">
+    不重复抽取
+  </label>
+  <label style="font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px">
+    一次抽
+    <input type="number" id="count" value="1" min="1" max="50" style="width:58px;padding:6px 8px;font:inherit;font-size:13px;border:1px solid var(--line);border-radius:8px;outline:none">
+    人
+  </label>
+</div>
+
+<div class="names">
+  <textarea id="input" placeholder="张三&#10;李四&#10;王五&#10;赵六"></textarea>
+  <p class="hintline">每行一个名字，也可以用逗号分隔</p>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var $ = function(id){ return document.getElementById(id); };
+  var timer = null, running = false, used = {};
+
+  function names(){
+    return $('input').value.split(/\r?\n|,|，|\s+/)
+      .map(function(s){ return s.trim(); })
+      .filter(function(s){ return s.length; });
+  }
+
+  function remaining(){
+    var all = names();
+    if(!$('norepeat').checked){ return all.slice(); }
+    var left = all.filter(function(n){ return !used[n]; });
+    return left.length ? left : null;
+  }
+
+  function pickSome(n){
+    var pool = remaining();
+    if(!pool){ return null; }
+    var out = [], copy = pool.slice();
+    n = Math.min(n, copy.length);
+    for(var i = 0; i < n; i++){
+      var idx = Math.floor(Math.random() * copy.length);
+      out.push(copy.splice(idx, 1)[0]);
+    }
+    return out;
+  }
+
+  function showList(arr){
+    $('who').innerHTML = arr.join('　');
+  }
+
+  function markUsed(arr){
+    arr.forEach(function(n){ used[n] = 1; });
+  }
+
+  function renderUsed(){
+    var ks = Object.keys(used);
+    var box = $('usedBox');
+    if(!box){ return; }
+    box.innerHTML = ks.length
+      ? '<div class="picked">' + ks.map(function(n){ return '<span>' + n + '</span>'; }).join('') + '</div>'
+      : '';
+  }
+
+  function start(){
+    var pool = remaining();
+    if(!pool){ $('tip').textContent = '所有人都已点过，点「重置」重新开始'; return; }
+    running = true;
+    $('toggle').textContent = '停止';
+    $('stage').classList.add('roll');
+    $('tip').textContent = '滚动中…';
+    timer = setInterval(function(){
+      showList([pool[Math.floor(Math.random() * pool.length)]]);
+    }, 62);
+  }
+
+  function stop(){
+    if(timer){ clearInterval(timer); timer = null; }
+    running = false;
+    $('toggle').textContent = '开始';
+    $('stage').classList.remove('roll');
+    var n = Math.max(1, Math.min(50, parseInt($('count').value, 10) || 1));
+    var got = pickSome(n);
+    if(!got){ $('tip').textContent = '所有人都已点过，点「重置」重新开始'; return; }
+    markUsed(got);
+    showList(got);
+    $('tip').textContent = '本轮：' + got.join('、');
+    renderUsed();
+  }
+
+  function toggle(){
+    if(running){ stop(); } else { start(); }
+  }
+
+  $('toggle').addEventListener('click', toggle);
+  $('reset').addEventListener('click', function(){
+    used = {};
+    if(running){ stop(); }
+    $('who').textContent = '准备就绪';
+    $('tip').textContent = '已重置，可以重新开始';
+    renderUsed();
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.code === 'Space' || e.key === ' '){
+      var t = e.target && e.target.tagName;
+      if(t === 'TEXTAREA' || t === 'INPUT'){ return; }
+      e.preventDefault();
+      toggle();
+    }
+  });
+  if(names().length){ $('tip').textContent = '按空格或点「开始」'; }
+})();
+</script>
+
+</body>
+</html>

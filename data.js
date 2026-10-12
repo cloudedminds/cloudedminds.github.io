@@ -14,7 +14,7 @@ const SITE = {
   /* ---------- 【一】页头和首页 ---------- */
   hero: {
     name: '明路路',
-    avatar: 'assets/zhaopian.jpg',                       // 证件照/形象照，建议正方形，例如 'assets/avatar.jpg'
+    avatar: '',                       // 证件照/形象照，建议正方形，例如 'assets/avatar.jpg'
     target: '求职意向：初中信息技术教师',
     tagline: '用学生玩得起来的方式，讲清楚技术的本质',
     intro: '我是安徽师范大学现代教育技术（师范）专业应届毕业生，喜欢把抽象的信息技术知识拆成学生能亲手完成的小作品。相信一节好课的标准不是讲了多少，而是学生下课后还想继续做。',
@@ -32,27 +32,34 @@ const SITE = {
     ],
     // 一行一句的基本信息，留空的会自动隐藏
     facts: [
-      { label: '学历', value: '安徽师范大学 ·  硕士研究生' },
-      { label: '专业', value: '现代教育技术（师范）' },
+      { label: '学历专业', value: '安徽师范大学 · 现代教育技术 · 硕士研究生' },
       { label: '教师资格', value: '高级中学信息技术教师资格证' },
       { label: '实习经历', value: '芜湖弋江中学 · 信息技术实习教师' }
     ]
   },
 
-  /* ---------- 【三】教学课件（信息技术 PPT）---------- */
+  /* ---------- 【三】教学课件（信息技术 PPT）----------
+   *  用法：一个 {} 就是一个课件包
+   *    files 里放这个包的所有文件，访客点卡片就能看到完整清单
+   *    文件放 assets/courseware/ 文件夹，路径填 'assets/courseware/文件名.pptx'
+   *    href 留空 = 显示"待上传"，等文件传好了再填
+   * ---------------------------------------------------- */
   teaching: {
     eyebrow: 'Teaching',
     title: '教学课件与设计',
-    desc: '按课时设计的完整课件，含情境导入、任务单与课堂检测。封面建议放课件首页截图。',
+    desc: '按课时设计的完整课件，含情境导入、任务单与课堂检测。点击卡片查看该课件的全部文件。',
+    showAllCard: true,          // 是否显示第一张"全部课件"汇总卡（改成 false 就不显示）
     items: [
       {
         title: '《认识算法与流程图》',
         tag: '七年级',
         desc: '用"泡一杯奶茶"的生活案例引入算法的顺序、分支、循环三种结构，配套课堂流程图小练习。',
-        cover: '',                    // 例：'assets/kejian-01.png'
-        gallery: [],                  // 可以再放几张内页截图：['assets/k1a.png','assets/k1b.png']
-        links: [
-          { label: '查看 / 下载课件', href: '' }   // 填公开链接，例如腾讯文档、百度网盘分享链接
+        cover: '',                    // 封面图路径，例：'assets/kejian-01.png'
+        gallery: [],                  // 内页截图：['assets/k1a.png','assets/k1b.png']
+        files: [
+          { name: '课件 PPT（24 页）',   href: '', note: 'PPTX' },
+          { name: '课堂任务单',          href: '', note: 'PDF' },
+          { name: '流程图练习参考答案',   href: '', note: 'PDF' }
         ]
       },
       {
@@ -61,7 +68,11 @@ const SITE = {
         desc: '连贯的入门单元设计，从坐标、事件到循环，含分层任务单，照顾不同进度的学生。',
         cover: '',
         gallery: [],
-        links: [ { label: '查看 / 下载课件', href: '' } ]
+        files: [
+          { name: '第 1-2 课时 PPT',    href: '', note: 'PPTX' },
+          { name: '第 3-8 课时 PPT',    href: '', note: 'PPTX' },
+          { name: '分层任务单（三档）',  href: '', note: 'PDF' }
+        ]
       },
       {
         title: '《网络安全与信息素养》',
@@ -69,7 +80,10 @@ const SITE = {
         desc: '情景剧导入 + 小组辩论，讨论密码安全、网络身份与信息甄别，附课堂辩论评分表。',
         cover: '',
         gallery: [],
-        links: [ { label: '查看 / 下载课件', href: '' } ]
+        files: [
+          { name: '课件 PPT（18 页）',   href: '', note: 'PPTX' },
+          { name: '辩论评分表',          href: '', note: 'PDF' }
+        ]
       },
       {
         title: '《Excel 数据处理初步》',
@@ -77,16 +91,22 @@ const SITE = {
         desc: '以学生自己的成绩表为素材做任务驱动，讲透相对引用、公式与图表呈现。',
         cover: '',
         gallery: [],
-        links: [ { label: '查看 / 下载课件', href: '' } ]
+        files: [
+          { name: '课件 PPT（22 页）',   href: '', note: 'PPTX' },
+          { name: '示例数据文件',        href: '', note: 'XLSX' }
+        ]
       }
     ]
   },
 
-  /* ---------- 【四】编程与创作（sb3 作品 + 小游戏）---------- */
+  /* ---------- 【四】编程与创作（sb3 作品 + 小游戏 + HTML 工具）----------
+   *  embed 填 HTML 文件路径（例：'tools/grade-stats.html'），
+   *  卡片就会变成"点击运行"，工具直接在弹窗里跑，不需要跳转。
+   * ---------------------------------------------------------------------- */
   coding: {
     eyebrow: 'Creation',
     title: '编程作品',
-    desc: '图形化编程与自制小作品，点击可玩。',
+    desc: '图形化编程、自制小游戏与教学实用工具，均可在线运行。',
     items: [
       {
         title: 'Scratch 作品集（sb3 源文件）',
@@ -99,22 +119,35 @@ const SITE = {
         links: [ { label: '源文件下载', href: '' } ]
       },
       {
-        title: '钓鱼小游戏',
-        tag: '',
-        desc: '以钓鱼为题材的休闲小游戏。',
+        title: '钓鱼小游戏（开发中）',
+        tag: 'Scratch · 制作中',
+        desc: '以钓鱼为题材的休闲小游戏：随机鱼群、稀有度分级、积分与商店系统。目前已完成核心玩法，正在打磨手感与美术。',
         cover: '',
         gallery: [],
         embed: '',
         links: [ { label: '试玩 Demo', href: '' }, { label: '查看进度', href: '' } ]
       },
       {
-        title: 'Python 小工具集',
-        tag: 'Python',
-        desc: '面向日常教学的小脚本，如成绩统计、随机点名、作业文件批量整理。',
+        title: '成绩统计工具',
+        tag: 'HTML · 教学工具',
+        desc: '粘贴一整列成绩，自动算出平均分、中位数、及格率、优秀率和分数段分布，并列出需要关注的学生。支持带姓名导入，可导出 CSV。',
         cover: '',
         gallery: [],
-        embed: '',
-        links: [ { label: '查看代码', href: '' } ]
+        embed: 'tools/grade-stats.html',
+        embedLabel: 'HTML 工具 · 点击运行',
+        source: '',
+        links: [ { label: '在新窗口打开', href: 'tools/grade-stats.html' } ]
+      },
+      {
+        title: '随机点名工具',
+        tag: 'HTML · 教学工具',
+        desc: '粘贴班级名单，随机滚动抽取学生，支持不重复模式和一次抽取多人，空格键即可开始或停止。',
+        cover: '',
+        gallery: [],
+        embed: 'tools/roll-call.html',
+        embedLabel: 'HTML 工具 · 点击运行',
+        source: '',
+        links: [ { label: '在新窗口打开', href: 'tools/roll-call.html' } ]
       }
     ]
   },

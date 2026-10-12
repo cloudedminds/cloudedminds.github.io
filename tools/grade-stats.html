@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>成绩统计小工具</title>
+<style>
+  :root{
+    --bg:#ffffff;--surface:#f6f7f9;--text:#1b1f24;--muted:#5b6470;
+    --line:#e6e8ec;--accent:#2f5fe0;--accent-soft:#eef2ff;
+    --danger:#a32d2d;--ok:#0f6e56;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+    color:var(--text);background:var(--bg);line-height:1.7;
+    padding:26px 22px 36px;-webkit-font-smoothing:antialiased;
+  }
+  h1{font-size:22px;font-weight:600;letter-spacing:-.01em}
+  .sub{font-size:13px;color:var(--muted);margin-top:4px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:20px}
+  textarea{
+    width:100%;min-height:196px;resize:vertical;padding:12px 14px;font-size:13px;
+    font-family:ui-monospace,Menlo,Consolas,monospace;line-height:1.8;
+    border:1px solid var(--line);border-radius:10px;outline:none;color:var(--text);
+  }
+  textarea:focus{border-color:var(--accent)}
+  .hintline{font-size:12px;color:var(--muted);margin-top:8px}
+  .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .stat{background:var(--surface);border-radius:10px;padding:12px 14px}
+  .stat .k{font-size:12px;color:var(--muted)}
+  .stat .v{font-size:22px;font-weight:500;margin-top:2px;letter-spacing:-.02em}
+  .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  button{
+    font:inherit;font-size:14px;padding:9px 18px;border-radius:10px;cursor:pointer;
+    border:1px solid var(--line);background:#fff;color:var(--text);transition:.16s;
+  }
+  button:hover{border-color:#c3cee8;color:var(--accent)}
+  button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  button.primary:hover{background:#2450c4;color:#fff}
+  .dist{margin-top:24px}
+  .dist h2{font-size:15px;font-weight:600;margin-bottom:12px}
+  .bar-row{display:grid;grid-template-columns:76px 1fr 62px;align-items:center;gap:12px;margin-bottom:9px}
+  .bar-row .lb{font-size:13px;color:var(--muted)}
+  .bar{height:12px;background:#eef0f4;border-radius:999px;overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:999px;background:var(--accent)}
+  .bar-row .vv{font-size:12px;color:var(--muted);text-align:right}
+  .bars .bar-row:nth-child(3) i{background:var(--ok)}
+  .care{
+    margin-top:20px;border:1px solid var(--line);border-left:3px solid var(--danger);
+    border-radius:10px;padding:12px 14px;font-size:13px;color:var(--muted);
+  }
+  .care b{color:var(--danger);font-weight:500}
+  .empty{font-size:13px;color:var(--muted);margin-top:20px}
+  @media (max-width:720px){ .grid{grid-template-columns:1fr} .stats{grid-template-columns:1fr 1fr} }
+</style>
+</head>
+<body>
+
+<h1>成绩统计小工具</h1>
+<p class="sub">支持「张三 92」或纯数字，空格 / 逗号 / 制表符 / 换行都能识别</p>
+
+<div class="grid">
+  <div>
+    <textarea id="input" placeholder="张三 92&#10;李四 78&#10;王五 55&#10;赵六 88"></textarea>
+    <p class="hintline">一次可以贴一整列成绩，Ctrl+V 直接粘</p>
+  </div>
+  <div class="stats" id="stats"></div>
+</div>
+
+<div class="row">
+  <button class="primary" id="run">统计</button>
+  <button id="demo">加载示例</button>
+  <button id="csv">导出 CSV</button>
+  <button id="clear">清空</button>
+</div>
+
+<div class="dist" id="dist"></div>
+
+<script>
+(function(){
+  'use strict';
+  var $ = function(id){ return document.getElementById(id); };
+
+  function parse(text){
+    var rows = [];
+    text.split(/\r?\n/).forEach(function(line){
+      line = line.trim();
+      if(!line){ return; }
+      var m = line.match(/^(.*?)[,，\s:：\t]+(-?\d+(?:\.\d+)?)\s*$/);
+      if(m){
+        rows.push({ name: m[1].trim(), score: parseFloat(m[2]) });
+        return;
+      }
+      var m2 = line.match(/(-?\d+(?:\.\d+)?)/);
+      if(m2){ rows.push({ name: '', score: parseFloat(m2[1]) }); }
+    });
+    return rows.filter(function(r){ return !isNaN(r.score); });
+  }
+
+  function median(nums){
+    var a = nums.slice().sort(function(x,y){ return x-y; });
+    var n = a.length;
+    if(!n){ return 0; }
+    if(n % 2){ return a[(n-1)/2]; }
+    return (a[n/2 - 1] + a[n/2]) / 2;
+  }
+
+  function pct(part, total){
+    if(!total){ return '0%'; }
+    return Math.round(part / total * 100) + '%';
+  }
+
+  function statCard(k, v){
+    return '<div class="stat"><div class="k">' + k + '</div><div class="v">' + v + '</div></div>';
+  }
+
+  function render(){
+    var rows = parse($('input').value);
+    var s = $('stats'), d = $('dist');
+    if(!rows.length){
+      s.innerHTML = '';
+      d.innerHTML = '<p class="empty">先在左边粘贴成绩，然后点「统计」。</p>';
+      return;
+    }
+    var scores = rows.map(function(r){ return r.score; });
+    var max = Math.max.apply(null, scores);
+    var min = Math.min.apply(null, scores);
+    var sum = scores.reduce(function(a,b){ return a+b; }, 0);
+    var avg = sum / scores.length;
+    var pass = scores.filter(function(v){ return v >= 60; }).length;
+    var great = scores.filter(function(v){ return v >= 85; }).length;
+
+    var maxName = '', minName = '';
+    rows.forEach(function(r){ if(r.score === max && !maxName){ maxName = r.name; } });
+    rows.forEach(function(r){ if(r.score === min && !minName){ minName = r.name; } });
+
+    s.innerHTML =
+      statCard('总人数', scores.length) +
+      statCard('平均分', avg.toFixed(1)) +
+      statCard('最高分', max + (maxName ? ' <span style="font-size:13px;color:var(--muted)">' + maxName + '</span>' : '')) +
+      statCard('最低分', min + (minName ? ' <span style="font-size:13px;color:var(--muted)">' + minName + '</span>' : '')) +
+      statCard('及格率', pct(pass, scores.length)) +
+      statCard('优秀率(≥85)', pct(great, scores.length)) +
+      statCard('中位数', median(scores).toFixed(1)) +
+      statCard('分数极差', (max - min).toFixed(1));
+
+    var bands = [
+      { label: '90-100', test: function(v){ return v >= 90; } },
+      { label: '80-89',  test: function(v){ return v >= 80 && v < 90; } },
+      { label: '70-79',  test: function(v){ return v >= 70 && v < 80; } },
+      { label: '60-69',  test: function(v){ return v >= 60 && v < 70; } },
+      { label: '60 以下', test: function(v){ return v < 60; } }
+    ];
+    var counts = bands.map(function(b){ return scores.filter(b.test).length; });
+    var top = Math.max.apply(null, counts.concat([1]));
+
+    d.innerHTML = '<h2>分数段分布</h2><div class="bars">' + bands.map(function(b, i){
+      var w = Math.round(counts[i] / top * 100);
+      return '<div class="bar-row"><span class="lb">' + b.label + '</span>' +
+             '<span class="bar"><i style="width:' + w + '%"></i></span>' +
+             '<span class="vv">' + counts[i] + ' 人</span></div>';
+    }).join('') + '</div>' +
+    (function(){
+      var low = rows.filter(function(r){ return r.score < 60 && r.name; });
+      if(!low.length){ return ''; }
+      return '<div class="care"><b>需要关注：</b>' +
+        low.map(function(r){ return r.name + '（' + r.score + '）'; }).join('、') + '</div>';
+    })();
+  }
+
+  function exportCSV(){
+    var rows = parse($('input').value);
+    if(!rows.length){ return; }
+    var csv = '\uFEFF姓名,成绩\n' + rows.map(function(r){
+      return '"' + r.name + '",' + r.score;
+    }).join('\n');
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = '成绩统计.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  var demo = ['张三 92','李四 78','王五 55','赵六 88','孙七 95','周八 67','吴九 73','郑十 81','冯一 59','陈二 86'];
+
+  $('run').addEventListener('click', render);
+  $('csv').addEventListener('click', exportCSV);
+  $('demo').addEventListener('click', function(){ $('input').value = demo.join('\n'); render(); });
+  $('clear').addEventListener('click', function(){ $('input').value = ''; render(); });
+  $('input').addEventListener('input', render);
+})();
+</script>
+
+</body>
+</html>
