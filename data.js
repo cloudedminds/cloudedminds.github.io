@@ -13,11 +13,11 @@ const SITE = {
 
   /* ---------- 【一】页头和首页 ---------- */
   hero: {
-    name: '你的名字',
+    name: '明路路',
     avatar: '',                       // 证件照/形象照，建议正方形，例如 'assets/avatar.jpg'
     target: '求职意向：初中信息技术教师',
     tagline: '用学生玩得起来的方式，讲清楚技术的本质',
-    intro: '我是 XXX 大学 XXX 专业应届毕业生 / X 年教学经验，喜欢把抽象的信息技术知识拆成学生能亲手完成的小作品。相信一节好课的标准不是讲了多少，而是学生下课后还想继续做。',
+    intro: '我是安徽师范大学现代教育技术（师范）专业应届毕业生，喜欢把抽象的信息技术知识拆成学生能亲手完成的小作品。相信一节好课的标准不是讲了多少，而是学生下课后还想继续做。',
     primaryBtn:  { label: '查看我的作品', href: '#teaching' },
     secondaryBtn:{ label: '联系我',       href: '#contact'  }
   },
@@ -28,25 +28,14 @@ const SITE = {
     title: '关于我',
     desc: '技术与教学的结合点，是我一直投入的方向。',
     paragraphs: [
-      '第一段：写你的专业背景和求职方向。比如所学的专业、是否持有教师资格证、主要面向的学段。让看的人 3 秒内知道你是谁、能教什么。',
-      '第二段：写你的教学风格或教育理念。不要写空话，最好给出具体做法，比如"习惯用任务驱动拆解知识点""每节课留 10 分钟让学生自己改作品"。这是跟其他候选人拉开差距的地方。'
+      '习惯用任务驱动拆解知识点 每节课给时间让学生自己动手做作品 '
     ],
     // 一行一句的基本信息，留空的会自动隐藏
     facts: [
-      { label: '学历专业', value: 'XX 大学 · 教育技术学 · 本科' },
-      { label: '教师资格', value: '初级中学信息技术教师资格证' },
-      { label: '所在城市', value: 'XX 市（可到岗）' },
-      { label: '实习经历', value: 'XX 中学 · 信息技术实习教师' }
+      { label: '学历专业', value: '安徽师范大学 · 现代教育技术 · 硕士研究生' },
+      { label: '教师资格', value: '高级中学信息技术教师资格证' },
+      { label: '实习经历', value: '芜湖弋江中学 · 信息技术实习教师' }
     ],
-    // 能力条，score 填 0-100
-    skills: [
-      { name: 'Scratch 图形化编程教学', score: 92 },
-      { name: 'PPT 课件 / 教学设计',     score: 88 },
-      { name: '课堂教学与班级组织',      score: 85 },
-      { name: 'Python / 代码小项目',     score: 70 },
-      { name: '录屏剪辑 / 微课制作',     score: 68 }
-    ]
-  },
 
   /* ---------- 【三】教学课件（信息技术 PPT）---------- */
   teaching: {
@@ -95,7 +84,7 @@ const SITE = {
   coding: {
     eyebrow: 'Creation',
     title: '编程作品',
-    desc: '图形化编程与自制小作品。Scratch 作品可以做成在线可玩，比截图有说服力得多。',
+    desc: '图形化编程与自制小作品。在线可玩',
     items: [
       {
         title: 'Scratch 作品集（sb3 源文件）',
@@ -169,12 +158,12 @@ const SITE = {
     title: '联系我',
     desc: '随时欢迎交流，看到邮件一般当天回复。',
     items: [
-      { label: '邮箱',   value: 'you@example.com',  href: 'mailto:you@example.com' },
-      { label: '电话',   value: '138 0000 0000',    href: 'tel:13800000000' },
-      { label: '微信',   value: '微信号 xxx',        href: '' },
+      { label: '邮箱',   value: '2827098045@qq.com',  href: 'mailto:2827098045@qq.com' },
+      { label: '电话',   value: '134 7081 4729 ',    href: '' },
+      { label: '微信',   value: '微信号 ulul6gnim',        href: '' },
       { label: '在线作品集', value: 'xiaoming0303.github.io', href: 'https://xiaoming0303.github.io' },
       { label: 'GitHub', value: 'github.com/xiaoming0303', href: 'https://github.com/xiaoming0303' }
     ],
-    footer: '© 2026 你的名字 · 在线作品集 xiaoming0303.github.io · 本站由 HTML + CSS 手写，托管于 GitHub Pages'
+    footer: '© 2026 明路路 · 在线作品集 xiaoming0303.github.io · 本站由 HTML + CSS 手写，托管于 GitHub Pages'
   }
 };
