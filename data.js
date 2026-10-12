@@ -86,7 +86,7 @@ const SITE = {
   coding: {
     eyebrow: 'Creation',
     title: '编程作品',
-    desc: '图形化编程与自制小作品。在线可玩',
+    desc: '图形化编程与自制小作品，点击可玩。',
     items: [
       {
         title: 'Scratch 作品集（sb3 源文件）',
@@ -99,9 +99,9 @@ const SITE = {
         links: [ { label: '源文件下载', href: '' } ]
       },
       {
-        title: '钓鱼小游戏（开发中）',
-        tag: 'Scratch · 制作中',
-        desc: '以钓鱼为题材的休闲小游戏：随机鱼群、稀有度分级、积分与商店系统。目前已完成核心玩法，正在打磨手感与美术。',
+        title: '钓鱼小游戏',
+        tag: '',
+        desc: '以钓鱼为题材的休闲小游戏。',
         cover: '',
         gallery: [],
         embed: '',
