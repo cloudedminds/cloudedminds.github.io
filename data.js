@@ -32,7 +32,8 @@ const SITE = {
     ],
     // 一行一句的基本信息，留空的会自动隐藏
     facts: [
-      { label: '学历专业', value: '安徽师范大学 · 现代教育技术 · 硕士研究生' },
+      { label: '学历', value: '安徽师范大学 · 硕士研究生' },
+      { label: '专业', value: '现代教育技术（师范）' },
       { label: '教师资格', value: '高级中学信息技术教师资格证' },
       { label: '实习经历', value: '芜湖弋江中学 · 信息技术实习教师' }
     ]
@@ -119,13 +120,13 @@ const SITE = {
         links: [ { label: '源文件下载', href: '' } ]
       },
       {
-        title: '钓鱼小游戏（开发中）',
-        tag: 'Scratch · 制作中',
-        desc: '以钓鱼为题材的休闲小游戏：随机鱼群、稀有度分级、积分与商店系统。目前已完成核心玩法，正在打磨手感与美术。',
+        title: '钓鱼小游戏',
+        tag: '',
+        desc: '以钓鱼为题材的休闲小游戏：随机鱼群、稀有度分级、积分与商店系统。',
         cover: '',
         gallery: [],
         embed: '',
-        links: [ { label: '试玩 Demo', href: '' }, { label: '查看进度', href: '' } ]
+        links: [ { label: '试玩', href: '' } ]
       },
       {
         title: '成绩统计工具',
